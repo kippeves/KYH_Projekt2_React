@@ -1,24 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
+import Form from "./Components/Form";
+import {Paper, Stack} from "@mui/material";
+import EventCalendar from "./Components/EventCalendar";
 
 function App() {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Paper elevation={3} sx={{padding:"2rem",minHeight:"85vh"}}>
+          <Stack spacing={2} alignContent={'stretch'}>
+              <Form/>
+              <EventCalendar/>
+          </Stack>
+      </Paper>
   );
 }
 

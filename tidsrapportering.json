@@ -1,0 +1,12 @@
+{
+    "companies": [
+      {
+        "id": 1,
+        "title": "Scania",
+        "projects": [
+            "Public web",
+            "Documentation 2022"
+        ] 
+      }
+    ]
+  }
