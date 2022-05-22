@@ -12,75 +12,86 @@ import React, {useEffect, useState} from "react";
 const Form = (props) => {
     const [customerList, setCustomerList] = useState([]);
     const [projectList, setProjectList] = useState([]);
-    const [customer, setCustomer] = useState(0);
-    const [project, setProject] = useState(0);
-    const [eventDate, setEventDate] = useState(moment())
-    const [eventStart, setEventStart] = useState(moment())
-    const [eventEnd, setEventEnd] = useState(moment(eventStart).add(1,'minutes'))
+    const [customer, setCustomer] = useState("");
+    const [project, setProject] = useState("");
+    const [eventDate, setEventDate] = useState(moment());
+    const [eventStart, setEventStart] = useState(moment());
+    const [eventEnd, setEventEnd] = useState(moment(eventStart)
+        .add(1, "minutes"));
 
     useEffect(() => {
-        return () => {
-            console.log('hi')
-            loadAllCustomers().then((result)=>
-            {
-                console.log(result)
+        loadAllCustomers()
+            .then((result) => {
+                result &&
                 setCustomerList(result);
-                setCustomer(result[0].id);
-            })
-        }}, []);
+                customerChange(result[0].id);
+            });
+    }, []);
+
+    const customerChange = (id) => {
+        setCustomer(id);
+        loadProjectsForCustomer(id)
+            .then(projects => {
+                setProjectList(projects);
+                setProject(projects[0].id);
+            });
+    };
 
     const changeEventStartDate = (date) => {
         setEventStart(date);
         setEventEnd(date);
-    }
+    };
 
     const loadAllCustomers = async () => {
-        console.log('I am here as well')
-        const url = "http://localhost:5018/customer";
-        const response = await fetch(url);
+        const url = "http://api.kippeves.com:3000/customer"
+        const response = await fetch(url, {
+            "location": "same-origin"
+        });
         return await response.json();
-    }
+    };
 
-    const loadProjectsForCustomer = async(id) => {
-        const url = `https://localhost:7248/project/customer/{id}`;
-        fetch(url,{'credentials': 'same-origin'})
-            .then(response => response.json())
-            .then(result => {return result});
-    }
+    const loadProjectsForCustomer = async (id) => {
+        const url = `http://localhost:5018/project/customer/${id}`;
+        return await fetch(url)
+            .then(response => response.json());
+    };
 
 
     return (
-        <Stack spacing={3} marginBottom={3}>
-            <TextField id="description"
-                       label="Lägg till titel"
-                       variant="standard"
-                       InputProps={{style: {fontSize: 30}}}
-                       InputLabelProps={{style: {fontSize: 30}}}/>
-
-            <FormControl fullWidth>
+        <FormControl fullWidth>
+            <Stack spacing={3} paddingX={1} paddingY={3}>
+                <TextField id="description"
+                           placeholder={"Lägg till titel"}
+                           variant="standard"
+                           InputProps={{style: {fontSize: 30}}}
+                           InputLabelProps={{style: {fontSize: 25}}}
+                           sx={{marginBottom:2}}
+                />
                 <TextField
                     select
                     id="select-customer"
                     value={customer}
+                    defaultValue={""}
                     label="Välj Kund"
-                    onChange={(e) => setCustomer(e.target.value)}
+                    onChange={(e) => customerChange(e.target.value)}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
                                 <PersonIcon/>
                             </InputAdornment>
-                        ),
+                        )
                     }}>
-                    {customerList.map(result => <MenuItem key={result} value={result.id}>{result.name}</MenuItem>)}
+                    {
+                        customerList.map(result => <MenuItem key={result.id}
+                                                             value={result.id}>{result.name}</MenuItem>)}
                 </TextField>
-            </FormControl>
-            {customer
-                &&
-                <FormControl fullWidth>
+                {customer
+                    &&
                     <TextField
                         select
                         id="select-project"
-                        value={''}
+                        value={project}
+                        defaultValue={""}
                         label="Välj Projekt"
                         onChange={(e) => setProject(e.target.value)}
                         InputProps={{
@@ -88,48 +99,44 @@ const Form = (props) => {
                                 <InputAdornment position="start">
                                     <AccountTreeRoundedIcon/>
                                 </InputAdornment>
-                            ),
+                            )
                         }}>
-                        <MenuItem value={0}>Projekt 1</MenuItem>
-                        <MenuItem value={1}>Projekt 2</MenuItem>
-                        <MenuItem value={2}>Projekt 3</MenuItem>
+                        {projectList.map(result => <MenuItem key={result.id}
+                                                             value={result.id}>{result.name}</MenuItem>)}
                     </TextField>
-                </FormControl>
-            }
+                }
+                <LocalizationProvider dateAdapter={AdapterMoment}>
+                    <DatePicker
+                        label="Valt Datum"
+                        value={eventDate}
+                        onChange={(date) => setEventDate(moment(date))}
+                        renderInput={(params) => <TextField {...params} />}
+                        disableFuture={true}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <CalendarMonthRoundedIcon/>
+                                </InputAdornment>
+                            )
+                        }}
+                    />
 
-            <LocalizationProvider dateAdapter={AdapterMoment}>
-                <DatePicker
-                    orientation="portrait"
-                    label="Valt Datum"
-                    value={eventDate}
-                    onChange={(date) => setEventDate(moment(date))}
-                    renderInput={(params) => <TextField {...params} />}
-                    disableFuture={true}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <CalendarMonthRoundedIcon/>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                    <TimePicker label={"Började"}
+                                ampm={false}
+                                onChange={(time) => changeEventStartDate(moment(time))}
+                                value={eventStart}
+                                renderInput={(params) => <TextField {...params} />}/>
 
-                <TimePicker label={"Började"}
-                            ampm={false}
-                            onChange={(time) => changeEventStartDate(moment(time))}
-                            value={eventStart}
-                            renderInput={(params) => <TextField {...params} />}/>
-
-                <TimePicker label={"Slutade"}
-                            minTime={eventStart}
-                            ampm={false}
-                            onChange={(time) => setEventEnd(moment(time))}
-                            value={eventEnd}
-                            renderInput={(params) => <TextField {...params} />}/>
-            </LocalizationProvider>
-
-        </Stack>
-);
-}
+                    <TimePicker label={"Slutade"}
+                                minTime={eventStart}
+                                ampm={false}
+                                onChange={(time) => setEventEnd(moment(time))}
+                                value={eventEnd}
+                                renderInput={(params) => <TextField {...params} />}/>
+                </LocalizationProvider>
+            </Stack>
+        </FormControl>
+    );
+};
 
 export default Form;
