@@ -9,7 +9,7 @@ import moment from "moment";
 import React, {useEffect, useState} from "react";
 
 
-const Form = (props) => {
+const Form = () => {
     const [customerList, setCustomerList] = useState([]);
     const [projectList, setProjectList] = useState([]);
     const [customer, setCustomer] = useState("");
@@ -21,20 +21,21 @@ const Form = (props) => {
 
     useEffect(() => {
         loadAllCustomers()
-            .then((result) => {
-                result &&
-                setCustomerList(result);
-                customerChange(result[0].id);
+            .then((customers) => {
+                customers &&
+                setCustomerList(customers);
+                customerChange(customers[0].id);
             });
     }, []);
 
     const customerChange = (id) => {
         setCustomer(id);
-        loadProjectsForCustomer(id)
-            .then(projects => {
-                setProjectList(projects);
-                setProject(projects[0].id);
-            });
+        loadCustomer(id).then((customer) => {
+            console.log(customer.project)
+            setProjectList(customer.project);
+            setProject(customer.project[0].id)
+        })
+
     };
 
     const changeEventStartDate = (date) => {
@@ -42,20 +43,21 @@ const Form = (props) => {
         setEventEnd(date);
     };
 
-    const loadAllCustomers = async () => {
-        const url = "http://localhost:5018/customer";
+    const loadCustomer = async (id) => {
+        const url = `http://api.kippeves.com:3000/customer/${id}?embed=project`
         const response = await fetch(url, {
             "location": "same-origin"
         });
         return await response.json();
     };
 
-    const loadProjectsForCustomer = async (id) => {
-        const url = `http://localhost:5018/project/customer/${id}`;
-        return await fetch(url)
-            .then(response => response.json());
+    const loadAllCustomers = async () => {
+        const url = "http://api.kippeves.com:3000/customer"
+        const response = await fetch(url, {
+            "location": "same-origin"
+        });
+        return await response.json();
     };
-
 
     return (
         <FormControl fullWidth>
