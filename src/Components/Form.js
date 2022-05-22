@@ -9,7 +9,7 @@ import moment from "moment";
 import React, {useEffect, useState} from "react";
 
 
-const Form = (props) => {
+const Form = () => {
     const [customerList, setCustomerList] = useState([]);
     const [projectList, setProjectList] = useState([]);
     const [customer, setCustomer] = useState("");
@@ -31,7 +31,7 @@ const Form = (props) => {
     const customerChange = (id) => {
         setCustomer(id);
         loadProjectsForCustomer(id)
-            .then(projects => {
+            .then((projects) => {
                 setProjectList(projects);
                 setProject(projects[0].id);
             });
@@ -44,10 +44,9 @@ const Form = (props) => {
 
     const loadAllCustomers = async () => {
         const url = "http://localhost:5018/customer";
-        const response = await fetch(url, {
+        return await fetch(url, {
             "location": "same-origin"
-        });
-        return await response.json();
+        }).then(response =>  response.json());
     };
 
     const loadProjectsForCustomer = async (id) => {
