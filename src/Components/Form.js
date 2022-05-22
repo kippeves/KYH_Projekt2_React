@@ -43,7 +43,7 @@ const Form = (props) => {
     };
 
     const loadAllCustomers = async () => {
-        const url = "http://api.kippeves.com:3000/customer"
+        const url = "http://localhost:5018/customer";
         const response = await fetch(url, {
             "location": "same-origin"
         });
