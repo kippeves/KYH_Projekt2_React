@@ -2,11 +2,12 @@ import "@fontsource/roboto/500.css";
 import AccountTreeRoundedIcon from "@mui/icons-material/AccountTreeRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import PersonIcon from "@mui/icons-material/Person";
-import {FormControl, InputAdornment, MenuItem, Stack, TextField} from "@mui/material";
+import {Button, FormControl, InputAdornment, MenuItem, Stack, TextField} from "@mui/material";
 import {DatePicker, LocalizationProvider, TimePicker} from "@mui/x-date-pickers";
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import moment from "moment";
 import React, {useEffect, useState} from "react";
+import {loadAllCustomers, loadCustomer} from "./data/fetchData";
 
 
 const Form = () => {
@@ -15,6 +16,7 @@ const Form = () => {
     const [customer, setCustomer] = useState("");
     const [project, setProject] = useState("");
     const [eventDate, setEventDate] = useState(moment());
+    const [description, setDescription] = useState("");
     const [eventStart, setEventStart] = useState(moment());
     const [eventEnd, setEventEnd] = useState(moment(eventStart)
         .add(1, "minutes"));
@@ -31,7 +33,7 @@ const Form = () => {
     const customerChange = (id) => {
         setCustomer(id);
         loadProjectsForCustomer(id)
-            .then((projects) => {
+            .then(projects => {
                 setProjectList(projects);
                 setProject(projects[0].id);
             });
@@ -42,17 +44,31 @@ const Form = () => {
         setEventEnd(date);
     };
 
-    const loadAllCustomers = async () => {
-        const url = "http://localhost:5018/customer";
-        return await fetch(url, {
-            "location": "same-origin"
-        }).then(response =>  response.json());
-    };
+    const submitTimeRegistration = (e) => {
+        e.preventDefault();
 
-    const loadProjectsForCustomer = async (id) => {
-        const url = `http://localhost:5018/project/customer/${id}`;
-        return await fetch(url)
-            .then(response => response.json());
+        const timeRegister = {
+            "customerId": customer,
+            "projectId": project,
+            "eventStart": eventStart.toISOString(),
+            "eventEnd": eventEnd.toISOString(),
+            "description": description
+        };
+
+        const url = "http://api.kippeves.com:3000/timeregistrations";
+
+        fetch(url, {
+            body: JSON.stringify(timeRegister),
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then((result) => result.json())
+            .then((json) => {
+                console.log(json);
+            });
+
     };
 
 

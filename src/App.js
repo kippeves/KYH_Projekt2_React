@@ -1,25 +1,18 @@
-import {Box, Paper} from "@mui/material";
+import {Paper} from "@mui/material";
 import {styled} from "@mui/material/styles";
-import {useState} from "react";
 import Main from "./Components/Main";
 import TopBar from "./Components/TopBar";
 
 function App() {
-    const [currentView, setCurrentView] = useState("form");
     const Offset = styled("div")(({theme}) => theme.mixins.toolbar);
-
-    const changePage = (page) => {
-        setCurrentView(page);
-    };
+    const Title = "TimeSavers: ";
 
     return (
-        <Box className={"portraitWidescreen"}>
-            <TopBar currentView={currentView} onPageClick={changePage}/>
+        <Paper elevation={8} className={"portraitWidescreen"}>
+            <TopBar/>
             <Offset/>
-            <Paper elevation={3}>
-                <Main currentView={currentView}/>
-            </Paper>
-        </Box>
+            <Main/>
+        </Paper>
     );
 }
 

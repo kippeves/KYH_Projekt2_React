@@ -1,30 +1,27 @@
-import {Box} from "@mui/material";
-import React, {useEffect} from "react";
-import EventCalendar from "./EventCalendar";
+import React, {useState} from "react";
+import AddIcon from "@mui/icons-material/Add";
+import {Container, Fab} from "@mui/material";
+import CalendarView from "./CalendarView";
 import Form from "./Form";
 
-const Main = ({currentView}) => {
-    const Title = "TimeSavers: "
+const Main = () => {
 
-    useEffect(() => {
-        // eslint-disable-next-line default-case
-        switch (currentView){
-            case 'form':
-                document.title = Title+"Lägg till nya tider"
-                break;
-            case 'calendar':
-                document.title = Title+"Se tidigare tidsregistreringar"
-                break;
-        }
-    }, [currentView]);
-
+    const [timeRegisterList, setTimeRegisterList] = useState([]);
+    const [timeRegister, setTimeRegister] = useState("");
 
     return (
-        <Box padding={4}>
-            {currentView==='form' && <Form/>
-            }
-            {currentView==='calendar' && <EventCalendar/>}
-        </Box>
+        <Container>
+            <Form/>
+            <Fab
+                size={"large"}
+                sx={{
+                    position: "absolute",
+                    bottom: 50,
+                    right: 50
+                }} aria-label="Lägg till" color={"primary"}>
+                <AddIcon/>
+            </Fab>
+        </Container>
     );
 };
 
