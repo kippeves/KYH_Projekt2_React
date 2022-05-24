@@ -4,45 +4,71 @@ import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import PersonIcon from "@mui/icons-material/Person";
 import {Button, FormControl, InputAdornment, MenuItem, Stack, TextField} from "@mui/material";
 import {DatePicker, LocalizationProvider, TimePicker} from "@mui/x-date-pickers";
-import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
-import moment from "moment";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {addMinutes, format, getHours, getMinutes, set} from "date-fns";
 import React, {useEffect, useState} from "react";
-import {loadAllCustomers, loadCustomer} from "./data/fetchData";
+import {loadAllCustomers, loadCustomer, loadProjectsForCustomer} from "./data/fetchData";
 
 
-const Form = () => {
+const Form = ({toast, setToast}) => {
     const [customerList, setCustomerList] = useState([]);
     const [projectList, setProjectList] = useState([]);
     const [customer, setCustomer] = useState("");
     const [project, setProject] = useState("");
-    const [eventDate, setEventDate] = useState(moment());
     const [description, setDescription] = useState("");
-    const [eventStart, setEventStart] = useState(moment());
-    const [eventEnd, setEventEnd] = useState(moment(eventStart)
-        .add(1, "minutes"));
+    const [eventStart, setEventStart] = useState(new Date());
+    const [eventEnd, setEventEnd] = useState(addMinutes(eventStart, 1));
+
 
     useEffect(() => {
         loadAllCustomers()
-            .then((result) => {
-                result &&
-                setCustomerList(result);
-                customerChange(result[0].id);
+            .then((customers) => {
+                customers &&
+                setCustomerList(customers);
+                customerChange(customers[0].id);
             });
     }, []);
 
     const customerChange = (id) => {
         setCustomer(id);
-        loadProjectsForCustomer(id)
-            .then(projects => {
-                setProjectList(projects);
-                setProject(projects[0].id);
+        loadCustomer(id)
+            .then(customer => {
+                loadProjectsForCustomer(customer.id)
+                    .then((projects) => {
+                            setProjectList(projects);
+                            setProject(projects[0].id);
+                        }
+                    );
             });
     };
 
-    const changeEventStartDate = (date) => {
-        setEventStart(date);
-        setEventEnd(date);
+    const changeEventDate = (date) => {
+        const newStart = set(eventStart, {
+            year: parseInt(format(date, "yyyy")),
+            month: parseInt(format(date, "L")) - 1,
+            date: parseInt(format(date, "dd")),
+            hours: getHours(eventStart),
+            minutes: getMinutes(eventStart)
+        });
+        const newEnd = set(eventStart, {
+            year: parseInt(format(date, "yyyy")),
+            month: parseInt(format(date, "L")) - 1,
+            date: parseInt(format(date, "dd")),
+            hours: getHours(eventEnd),
+            minutes: getMinutes(eventEnd)
+        });
+        setEventStart(newStart);
+        setEventEnd(newEnd);
     };
+
+    const changeEventTime = (date) => {
+        const newStartTime = set(eventStart, {hours: getHours(date), minutes: getMinutes(date)});
+        const startCopy = set(eventEnd, {hours: getHours(date), minutes: getMinutes(date)});
+        const newEndTime = addMinutes(startCopy, 1);
+        setEventStart(newStartTime);
+        setEventEnd(newEndTime);
+    };
+
 
     const submitTimeRegistration = (e) => {
         e.preventDefault();
@@ -55,18 +81,23 @@ const Form = () => {
             "description": description
         };
 
-        const url = "http://api.kippeves.com:3000/timeregistrations";
-
+        const url = "https://localhost:7248/timereg";
+        console.log("i am registering");
         fetch(url, {
             body: JSON.stringify(timeRegister),
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "location": "same-origin"
             }
         })
-            .then((result) => result.json())
-            .then((json) => {
-                console.log(json);
+            .then((response) => {
+                console.log(response);
+                if (response.status === 201) {
+                    setToast({message: "Registrering lyckad.", status: "success", show: true});
+                } else {
+                    setToast({message: "Någonting gick fel", status: "error", show: true});
+                }
             });
 
     };
@@ -80,7 +111,8 @@ const Form = () => {
                            variant="standard"
                            InputProps={{style: {fontSize: 30}}}
                            InputLabelProps={{style: {fontSize: 25}}}
-                           sx={{marginBottom:2}}
+                           onChange={(e) => setDescription(e.target.value)}
+                           sx={{marginBottom: 2}}
                 />
                 <TextField
                     select
@@ -120,11 +152,11 @@ const Form = () => {
                                                              value={result.id}>{result.name}</MenuItem>)}
                     </TextField>
                 }
-                <LocalizationProvider dateAdapter={AdapterMoment}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DatePicker
                         label="Valt Datum"
-                        value={eventDate}
-                        onChange={(date) => setEventDate(moment(date))}
+                        value={eventStart}
+                        onChange={(date) => changeEventDate(date)}
                         renderInput={(params) => <TextField {...params} />}
                         disableFuture={true}
                         InputProps={{
@@ -138,18 +170,20 @@ const Form = () => {
 
                     <TimePicker label={"Började"}
                                 ampm={false}
-                                onChange={(time) => changeEventStartDate(moment(time))}
+                                onChange={(time) => changeEventTime(time)}
                                 value={eventStart}
                                 renderInput={(params) => <TextField {...params} />}/>
 
                     <TimePicker label={"Slutade"}
                                 minTime={eventStart}
                                 ampm={false}
-                                onChange={(time) => setEventEnd(moment(time))}
+                                onChange={(time) => setEventEnd(time)}
                                 value={eventEnd}
                                 renderInput={(params) => <TextField {...params} />}/>
                 </LocalizationProvider>
             </Stack>
+            <Button variant={"contained"} color={"success"} sx={{alignSelf: "center", paddingX: 3, paddingY: 2}}
+                    onClick={submitTimeRegistration}>Lägg till</Button>
         </FormControl>
     );
 };

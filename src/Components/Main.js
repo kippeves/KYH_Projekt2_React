@@ -1,26 +1,11 @@
-import React, {useState} from "react";
-import AddIcon from "@mui/icons-material/Add";
-import {Container, Fab} from "@mui/material";
-import CalendarView from "./CalendarView";
+import {Container} from "@mui/material";
+import React from "react";
 import Form from "./Form";
 
-const Main = () => {
-
-    const [timeRegisterList, setTimeRegisterList] = useState([]);
-    const [timeRegister, setTimeRegister] = useState("");
-
+const Main = ({toast, setToast}) => {
     return (
         <Container>
-            <Form/>
-            <Fab
-                size={"large"}
-                sx={{
-                    position: "absolute",
-                    bottom: 50,
-                    right: 50
-                }} aria-label="Lägg till" color={"primary"}>
-                <AddIcon/>
-            </Fab>
+            <Form toast={toast} setToast={setToast}/>
         </Container>
     );
 };

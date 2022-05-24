@@ -1,7 +1,7 @@
-
+const base = "https://localhost:7248";
 
 export const loadCustomer = async (id) => {
-    const url = `http://api.kippeves.com:3000/customers/${id}?embed=projects`;
+    const url = base + `/customers/${id}`;
     const response = await fetch(url, {
         "location": "same-origin"
     });
@@ -9,8 +9,17 @@ export const loadCustomer = async (id) => {
     return await response.json();
 };
 
+export const loadProjectsForCustomer = async(id) => {
+    const url = base + `/customers/${id}/projects`;
+    const response = await fetch(url, {
+        "location": "same-origin"
+    });
+
+    return await response.json();
+}
+
 export const loadAllCustomers = async () => {
-    const url = "http://api.kippeves.com:3000/customers";
+    const url = base + "/customers";
 
     const response = await fetch(url, {
         "location": "same-origin"
@@ -19,7 +28,7 @@ export const loadAllCustomers = async () => {
 };
 
 export const loadTimeRegisters = async () => {
-    const url = "http://api.kippeves.com:3000/timeregistrations?expand=customer&expand=project";
+    const url = base + "/timereg";
 
     const response = await fetch(url, {
         "location": "same-origin"
