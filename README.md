@@ -2,7 +2,7 @@
 
 ### What is the app?
 
-The app was part of an assignment to create a React-application that can submit data to a WebAPI. The application was created in React 18 LTS and was design ued Material UI. Components that are used in the project but currently not used in the "current" version of the software is FullCalendar.
+The app was part of an assignment to create a React-application that can submit data to a WebAPI. The application was created in React 18 LTS and was design used Material UI. Components that are used in the project but currently not used in the "current" version of the software is FullCalendar.
 
 ## Components used:
 
