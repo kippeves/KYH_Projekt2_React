@@ -99,7 +99,6 @@ const Form = ({toast, setToast}) => {
                     setToast({message: "Någonting gick fel", status: "error", show: true});
                 }
             });
-
     };
 
 

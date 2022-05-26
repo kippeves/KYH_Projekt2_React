@@ -17,6 +17,7 @@ export default function TopBar({children}) {
     };
 
     const pages = ["Lägg till", "Se tidigare"];
+
     return (
         <AppBar position={"static"}>
             <Toolbar>
@@ -71,7 +72,7 @@ export default function TopBar({children}) {
                     href="/"
                     sx={{
                         mr: 1,
-                        mb:0.8,
+                        mb: 0.8,
                         display: {xs: "none", md: "flex"},
                         fontFamily: "monospace",
                         fontWeight: 700,
@@ -88,7 +89,6 @@ export default function TopBar({children}) {
                     sx={{
                         mr: 2,
                         fontWeight: 700,
-                        letterSpacing: ".1rem",
                         color: "inherit",
                         textDecoration: "none",
                         flexGrow: 1,
